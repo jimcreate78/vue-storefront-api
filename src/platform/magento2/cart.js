@@ -22,7 +22,37 @@ class CartProxy extends AbstractCartProxy {
     pull (customerToken, cartId,  params) { 
         return this.api.cart.pull(customerToken, cartId, params)
     }        
+    totals (customerToken, cartId,  params) { 
+        return this.api.cart.totals(customerToken, cartId, params)
+    }
+
+    getShippingMethods (customerToken, cartId, address) {
+        return this.api.cart.shippingMethods(customerToken, cartId, address)
+    }
+
+    getPaymentMethods (customerToken, cartId) {
+        return this.api.cart.paymentMethods(customerToken, cartId)
+    }
+
+    setShippingInformation (customerToken, cartId, address) {
+        return this.api.cart.shippingInformation(customerToken, cartId, address)
+    }
+
+    collectTotals (customerToken, cartId, shippingMethod) {
+        return this.api.cart.collectTotals(customerToken, cartId, shippingMethod)
+    }
+
+    applyCoupon (customerToken, cartId, coupon) { 
+        return this.api.cart.applyCoupon(customerToken, cartId, coupon)
+    }           
     
+    deleteCoupon (customerToken, cartId) { 
+        return this.api.cart.deleteCoupon(customerToken, cartId)
+    }        
+
+    getCoupon (customerToken, cartId) { 
+        return this.api.cart.getCoupon(customerToken, cartId)        
+    }    
 }
 
 module.exports = CartProxy

@@ -21,7 +21,7 @@ export default ({ config, db }) => resource({
 
 		if (!validate(req.body)) { // schema validation of upcoming order
 			console.dir(validate.errors);
-			apiStatus(res, validate.errors, 200);
+			apiStatus(res, validate.errors, 500);
 			return;
 		}				
 
@@ -34,16 +34,18 @@ export default ({ config, db }) => resource({
 			}
 			// console.log(key)
 			
-			if (!hmac.verify(key, product.sgn, config.objHashSecret)) {
-				console.error('Invalid hash for ' + product.sku + ': ' + product.sgn)
-				apiStatus(res, "Invalid signature validation of " + product.sku, 200);
-				return;
+			if (!config.tax.usePlatformTotals) {
+				if (!hmac.verify(key, product.sgn, config.objHashSecret)) {
+					console.error('Invalid hash for ' + product.sku + ': ' + product.sgn)
+					apiStatus(res, "Invalid signature validation of " + product.sku, 200);
+					return;
+				}
 			}
 		}
 
 		let queue = kue.createQueue(config.kue);
-		queue.createJob('order', { title: 'Incoming order received on ' + new Date() + ' / ' + req.ip, ip: req.ip, agent: req.headers['user-agent'], receivedAt: new Date(), order: req.body  }/* parsed using bodyParser.json middleware */).save();
-		apiStatus(res, "Order acknowledged!", 200);
+		const job = queue.createJob('order', { title: 'Incoming order received on ' + new Date() + ' / ' + req.ip, ip: req.ip, agent: req.headers['user-agent'], receivedAt: new Date(), order: req.body  }/* parsed using bodyParser.json middleware */).save();
+		apiStatus(res, job.id, 200);
 	},
 
 	

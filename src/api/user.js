@@ -84,6 +84,19 @@ export default ({ config, db }) => {
 		})				
 	});	
 
+
+	/**
+	 * GET  an user order history
+	 */
+	userApi.get('/order-history', (req, res) => {	
+		const userProxy = _getProxy()
+		userProxy.orderHistory(req.query.token).then((result) => {
+			apiStatus(res, result, 200);
+		}).catch(err=> {
+			apiStatus(res, err, 500);
+		})				
+	});	
+
 	/**
 	 * POST for updating user
 	 */
@@ -93,7 +106,7 @@ export default ({ config, db }) => {
 
 		if (!validate(req.body)) {
 			console.dir(validate.errors);
-			apiStatus(res, validate.errors, 200);
+			apiStatus(res, validate.errors, 500);
 			return;
 		}
 

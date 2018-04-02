@@ -29,6 +29,43 @@ module.exports = function (restClient) {
             }
         }
     }    
+
+    module.applyCoupon = function (customerToken, cartId, coupon, adminRequest = false) {
+        if (adminRequest) {
+            return restClient.put('/carts/' + cartId + '/coupons/' + coupon);
+        } else {
+            if (customerToken && isNumeric(cartId)) {
+                return restClient.put('/carts/mine/coupons/' + coupon, null, customerToken);
+            } else 
+            {
+                return restClient.put('/guest-carts/' + cartId + '/coupons/' + coupon);
+            }
+        }
+    }  
+    module.deleteCoupon = function (customerToken, cartId, adminRequest = false) {
+        if (adminRequest) {
+            return restClient.delete('/carts/' + cartId + '/coupons');
+        } else {
+            if (customerToken && isNumeric(cartId)) {
+                return restClient.delete('/carts/mine/coupons', customerToken);
+            } else 
+            {
+                return restClient.delete('/guest-carts/' + cartId + '/coupons');
+            }
+        }
+    }      
+    module.getCoupon = function (customerToken, cartId, adminRequest = false) {
+        if (adminRequest) {
+            return restClient.get('/carts/' + cartId + '/coupons');
+        } else {
+            if (customerToken && isNumeric(cartId)) {
+                return restClient.get('/carts/mine/coupons', customerToken);
+            } else 
+            {
+                return restClient.get('/guest-carts/' + cartId + '/coupons');
+            }
+        }
+    }   
     module.delete = function (customerToken, cartId, cartItem, adminRequest = false) {
         if (adminRequest) {
             return restClient.delete('/carts/' + cartId + '/items/' + cartItem.item_id);
@@ -50,6 +87,18 @@ module.exports = function (restClient) {
             } else 
             {
                 return restClient.get('/guest-carts/' + cartId + '/items/');
+            }
+        }
+    }              
+    module.totals = function (customerToken, cartId, params, adminRequest = false) {
+        if (adminRequest) {
+            return restClient.get('/carts/' + cartId + '/totals/');
+        } else {
+            if (customerToken && isNumeric(cartId)) {
+                return restClient.get('/carts/mine/totals', customerToken);
+            } else 
+            {
+                return restClient.get('/guest-carts/' + cartId + '/totals/');
             }
         }
     }              
@@ -100,6 +149,34 @@ module.exports = function (restClient) {
                 storeId: storeId
             }
         )
-    }          
+    }    
+
+    module.shippingMethods = function (customerToken, cartId, address) {
+        if (customerToken && isNumeric(cartId)) {
+            return restClient.post('/carts/mine/estimate-shipping-methods', { address: address }, customerToken)
+        } else 
+        {
+            return restClient.post('/guest-carts/' + cartId + '/estimate-shipping-methods', { address: address })
+        }
+    }
+
+    module.paymentMethods = function (customerToken, cartId) {
+        if (customerToken && isNumeric(cartId)) {
+            return restClient.get('/carts/mine/payment-methods', customerToken)
+        } else 
+        {
+            return restClient.get('/guest-carts/' + cartId + '/payment-methods')
+        }
+    }
+
+    module.collectTotals = function (customerToken, cartId, shippingMethod) {
+        if (customerToken && isNumeric(cartId)) {
+            return restClient.put('/carts/mine/collect-totals', shippingMethod, customerToken)
+        } else
+        {
+            return restClient.put('/guest-carts/' + cartId + '/collect-totals', shippingMethod)
+        }
+    }
+
     return module;
 }
